@@ -1,24 +1,215 @@
-# Compiled class file
-*.class
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Scanner;
 
-# Log file
-*.log
+class Course {
+    private String courseCode;
+    private String title;
+    private String description;
+    private int capacity;
+    private String schedule;
+    private List<String> enrolledStudents;
 
-# BlueJ files
-*.ctxt
+    public Course(String courseCode, String title, String description, int capacity, String schedule) {
+        this.courseCode = courseCode;
+        this.title = title;
+        this.description = description;
+        this.capacity = capacity;
+        this.schedule = schedule;
+        this.enrolledStudents = new ArrayList<>();
+    }
 
-# Mobile Tools for Java (J2ME)
-.mtj.tmp/
+    public String getCourseCode() {
+        return courseCode;
+    }
 
-# Package Files #
-*.jar
-*.war
-*.nar
-*.ear
-*.zip
-*.tar.gz
-*.rar
+    public String getTitle() {
+        return title;
+    }
 
-# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
-hs_err_pid*
-replay_pid*
+    public String getDescription() {
+        return description;
+    }
+
+    public int getCapacity() {
+        return capacity;
+    }
+
+    public String getSchedule() {
+        return schedule;
+    }
+
+    public List<String> getEnrolledStudents() {
+        return enrolledStudents;
+    }
+
+    public boolean enrollStudent(String studentId) {
+        if (enrolledStudents.size() < capacity) {
+            enrolledStudents.add(studentId);
+            return true;
+        } else {
+            System.out.println("Course is full. Cannot enroll more students.");
+            return false;
+        }
+    }
+
+    public void removeStudent(String studentId) {
+        enrolledStudents.remove(studentId);
+    }
+}
+
+class Student {
+    private String studentId;
+    private String name;
+    private List<String> registeredCourses;
+
+    public Student(String studentId, String name) {
+        this.studentId = studentId;
+        this.name = name;
+        this.registeredCourses = new ArrayList<>();
+    }
+
+    public String getStudentId() {
+        return studentId;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public List<String> getRegisteredCourses() {
+        return registeredCourses;
+    }
+
+    public void registerForCourse(String courseCode) {
+        registeredCourses.add(courseCode);
+    }
+
+    public void dropCourse(String courseCode) {
+        registeredCourses.remove(courseCode);
+    }
+}
+
+public class CourseRegistrationSystem {
+    private List<Course> courses;
+    private List<Student> students;
+    private Scanner scanner;
+
+    public CourseRegistrationSystem() {
+        this.courses = new ArrayList<>();
+        this.students = new ArrayList<>();
+        this.scanner = new Scanner(System.in);
+    }
+
+    public void addCourse(Course course) {
+        courses.add(course);
+    }
+
+    public void addStudent(Student student) {
+        students.add(student);
+    }
+
+    public void displayCourses() {
+        System.out.println("Available Courses:");
+        for (Course course : courses) {
+            System.out.println(course.getCourseCode() + " - " + course.getTitle() +
+                    " (Capacity: " + course.getCapacity() + ", Schedule: " + course.getSchedule() + ")");
+        }
+    }
+
+    public void displayStudents() {
+        System.out.println("Registered Students:");
+        for (Student student : students) {
+            System.out.println(student.getStudentId() + " - " + student.getName());
+        }
+    }
+
+    public void enrollStudentInCourse() {
+        System.out.print("Enter student ID: ");
+        String studentId = scanner.next();
+
+        System.out.print("Enter course code: ");
+        String courseCode = scanner.next();
+
+        Student student = findStudentById(studentId);
+        Course course = findCourseByCode(courseCode);
+
+        if (student != null && course != null) {
+            if (course.enrollStudent(studentId)) {
+                student.registerForCourse(courseCode);
+                System.out.println("Enrollment successful.");
+            } else {
+                System.out.println("Enrollment failed.");
+            }
+        } else {
+            System.out.println("Student or course not found.");
+        }
+    }
+
+    public void removeStudentFromCourse() {
+        System.out.print("Enter student ID: ");
+        String studentId = scanner.next();
+
+        System.out.print("Enter course code: ");
+        String courseCode = scanner.next();
+
+        Student student = findStudentById(studentId);
+        Course course = findCourseByCode(courseCode);
+
+        if (student != null && course != null) {
+            course.removeStudent(studentId);
+            student.dropCourse(courseCode);
+            System.out.println("Student removed from the course.");
+        } else {
+            System.out.println("Student or course not found.");
+        }
+    }
+
+    private Student findStudentById(String studentId) {
+        for (Student student : students) {
+            if (student.getStudentId().equals(studentId)) {
+                return student;
+            }
+        }
+        return null;
+    }
+
+    private Course findCourseByCode(String courseCode) {
+        for (Course course : courses) {
+            if (course.getCourseCode().equals(courseCode)) {
+                return course;
+            }
+        }
+        return null;
+    }
+
+    public static void main(String[] args) {
+        CourseRegistrationSystem system = new CourseRegistrationSystem();
+
+        // Adding sample courses
+        system.addCourse(new Course("CSE101", "Introduction to Computer Science", "Basic CS concepts", 30, "Mon/Wed/Fri 10:00 AM"));
+        system.addCourse(new Course("MAT201", "Calculus I", "Limits, derivatives, and integrals", 25, "Tue/Thu 2:00 PM"));
+        system.addCourse(new Course("ENG301", "English Literature", "Literary analysis and critique", 20, "Mon/Wed 3:30 PM"));
+
+        // Adding sample students
+        system.addStudent(new Student("S101", "Alice"));
+        system.addStudent(new Student("S102", "Bob"));
+        system.addStudent(new Student("S103", "Charlie"));
+
+        // Sample enrollments
+        system.enrollStudentInCourse();
+        system.enrollStudentInCourse();
+        system.enrollStudentInCourse();
+
+        // Displaying registered students and available courses
+        system.displayStudents();
+        system.displayCourses();
+
+        // Sample removal
+        system.removeStudentFromCourse();
+
+        // Displaying registered students and available courses after removal
+        system.displayStudents();
+        system.displayCourses();
+    }
+}
